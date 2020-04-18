@@ -10,14 +10,6 @@ import cv2
 
 face_cascade = cv2.CascadeClassifier('/home/geethesh/Documents/imagevenv/lib/python2.7/site-packages/cv2/data/haarcascade_frontalface_default.xml') 
 
-def detect(gray, frame): 
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5) 
-    for (x, y, w, h) in faces: 
-        cv2.rectangle(frame, (x, y), ((x + w), (y + h)), (255, 0, 0), 2) 
-        roi_gray = gray[y:y + h, x:x + w] 
-        roi_color = frame[y:y + h, x:x + w] 
-    return frame
-
 def eye_aspect_ratio(eye):
 	A = dist.euclidean(eye[1], eye[5])
 	B = dist.euclidean(eye[2], eye[4])
@@ -31,12 +23,9 @@ def eye_aspect_ratio(eye):
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--shape-predictor", required=False,default="shape_predictor_68_face_landmarks.dat",help="path to facial landmark predictor")
 args = vars(ap.parse_args())
- 
-MOUTH_AR_THRESH = 0.3
+
 EYE_AR_THRESH = 0.25
 EYE_AR_MILLIS = 400
-
-COUNTER = 0
 
 print("[INFO] loading facial landmark predictor...")
 detector = dlib.get_frontal_face_detector()
@@ -56,7 +45,6 @@ while True:
 	frame = imutils.resize(frame, width=650)
 	
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-	frame = detect(gray,frame)
 	rects = detector(gray, 0)
 
 	for rect in rects:
@@ -69,9 +57,8 @@ while True:
 		rightEAR = eye_aspect_ratio(rightEye)
 
 		ear = (leftEAR + rightEAR) / 2.0
-		ear1=round(ear,2)
- 		stear =str(ear1)
-		
+		ear1 = round(ear,2)
+		stear = str(ear1)
 
 		leftEyeHull = cv2.convexHull(leftEye)
 		cv2.drawContours(frame, [leftEyeHull], -1, (150, 0, 150), 1)
@@ -84,11 +71,11 @@ while True:
 		else:
 			stopTime = time.time()*1000.0 +1000
 			closeFlag = False
-			print "DRIVER AWAKE"
+			print("DRIVER AWAKE")
 			mixer.music.stop()
 			
 		if time.time()*1000.0 > stopTime:
-			print "DRIVER FELL ASLEEP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+			print("DRIVER FELL ASLEEP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 			mixer.music.play()
 			stopTime = time.time()*1000.0 + 2000
 			
@@ -98,5 +85,6 @@ while True:
 	key = cv2.waitKey(1) & 0xFF
 	if key == ord("q"):
 		break
+mixer.quit()
 cv2.destroyAllWindows()
 vs.stop()
